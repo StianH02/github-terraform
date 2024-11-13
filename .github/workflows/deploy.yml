@@ -47,7 +47,11 @@ jobs:
         run: echo "TFVARS_FILE is set to ${{ env.TFVARS_FILE }}"
 
       - name: Debug Branch Name
-        run: echo "Current branch: ${{ github.ref }}"
+        run: echo "Current branch ${{ github.ref }}"
+
+
+      - name: Debug Branch Name (head_ref for PRs)
+        run: echo "Current branch ${{ github.head_ref }}"
 
 
 
