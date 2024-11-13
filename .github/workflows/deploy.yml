@@ -42,6 +42,9 @@ jobs:
           elif [ "${{ github.ref }}" == "refs/heads/Production" ]; then
             echo "TFVARS_FILE=terraform.tfvars.prod" >> $GITHUB_ENV
           fi
+      
+      - name: Debug TFVARS_FILE
+        run: echo "TFVARS_FILE is set to ${{ env.TFVARS_FILE }}"
 
       # Initialize Terraform in the Global directory
       - name: Terraform init - Global
