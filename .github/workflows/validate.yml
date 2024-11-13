@@ -35,6 +35,11 @@ jobs:
       # Check out the repository
       - uses: actions/checkout@v4.1.1
 
+      # Install TFLint
+      - name: Install TFLint
+        run: |
+          curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
+
       # Terraform initialization
       - name: Terraform init
         run: terraform init
