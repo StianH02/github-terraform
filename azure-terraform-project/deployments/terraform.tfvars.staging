@@ -1,0 +1,42 @@
+location            = "West Europe"
+resource_group_name = "rg-staging"
+vnet_name           = "vnet-staging"
+address_space       = ["10.1.0.0/16"]
+subnets = [
+  {
+    name           = "subnet-staging1"
+    address_prefix = "10.1.1.0/24"
+  },
+  {
+    name           = "subnet-staging2"
+    address_prefix = "10.1.2.0/24"
+  }
+]
+nsg_name = "nsg-staging"
+
+app_service_plan_name = "app-plan-dev"
+app_service_plan_sku_name = "P1v2"
+app_service_name      = "app-service-dev"
+
+sql_server_name             = "dev-sqlserver"
+administrator_login         = "4dm1n157r470r"
+administrator_login_password = "4-v3ry-53cr37-p455w0rd"
+database_name               = "dev-db"
+collation                   = "SQL_Latin1_General_CP1_CI_AS"
+license_type                = "LicenseIncluded"
+max_size_gb                 = 2
+sku_name                    = "S0"
+enclave_type                = "VBS"
+tags = {
+  environment = "development"
+  owner       = "dev-team"
+}
+
+public_ip_name      = "PublicIPForLB"
+load_balancer_name  = "TestLoadBalancer"
+frontend_ip_name    = "PublicIPAddress"
+
+base_name             = "sash"
+account_tier          = "Standard"
+replication_type      = "GRS"
+access_tier           = "Hot"
