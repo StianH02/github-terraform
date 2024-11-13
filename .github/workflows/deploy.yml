@@ -1,0 +1,93 @@
+name: Deploy Infrastructure
+
+# Trigger the workflow on pull requests to environment branches
+on:
+  pull_request:
+    branches:
+      - Development
+      - Staging
+      - Production
+    paths:
+      - '**'
+
+jobs:
+  terraform:
+    name: 'Deploy Infrastructure'
+    runs-on: ubuntu-22.04
+
+    env:
+      ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      GLOBAL_DIR: ./azure-terraform-project/global
+      DEPLOYMENTS_DIR: ./azure-terraform-project/deployments
+
+    permissions:
+      contents: read
+      id-token: write
+      pull-requests: write
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      # Initialize Terraform in the Global directory
+      - name: Terraform init - Global
+        run: terraform init
+        working-directory: ${{ env.GLOBAL_DIR }}
+
+      # Generate a plan for Terraform changes in the Global directory
+      - name: Terraform plan - Global
+        run: terraform plan -out=tfplan-global
+        working-directory: ${{ env.GLOBAL_DIR }}
+
+      # Conditionally apply Terraform changes in Global based on the target branch
+      - name: Apply Terraform Changes in Global for Development and Staging
+        if: github.ref == 'refs/heads/Development' || github.ref == 'refs/heads/Staging'
+        run: terraform apply -auto-approve tfplan-global
+        working-directory: ${{ env.GLOBAL_DIR }}
+
+      # Approval for applying changes in Global for Production
+      - name: Request Approval for Global in Production
+        if: github.ref == 'refs/heads/Production'
+        uses: hmarr/auto-approve-action@v2.0.0
+        with:
+          approve: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Apply Terraform Changes in Global for Production
+        if: github.ref == 'refs/heads/Production' && github.event.review.state == 'approved'
+        run: terraform apply -auto-approve tfplan-global
+        working-directory: ${{ env.GLOBAL_DIR }}
+
+      # Initialize Terraform in the Deployments directory
+      - name: Terraform init - Deployments
+        run: terraform init
+        working-directory: ${{ env.DEPLOYMENTS_DIR }}
+
+      # Generate a plan for Terraform changes in the Deployments directory
+      - name: Terraform plan - Deployments
+        run: terraform plan -out=tfplan-deployments
+        working-directory: ${{ env.DEPLOYMENTS_DIR }}
+
+      # Conditionally apply Terraform changes in Deployments based on the target branch
+      - name: Apply Terraform Changes in Deployments for Development and Staging
+        if: github.ref == 'refs/heads/Development' || github.ref == 'refs/heads/Staging'
+        run: terraform apply -auto-approve tfplan-deployments
+        working-directory: ${{ env.DEPLOYMENTS_DIR }}
+
+      # Approval for applying changes in Deployments for Production
+      - name: Request Approval for Deployments in Production
+        if: github.ref == 'refs/heads/Production'
+        uses: hmarr/auto-approve-action@v2.0.0
+        with:
+          approve: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Apply Terraform Changes in Deployments for Production
+        if: github.ref == 'refs/heads/Production' && github.event.review.state == 'approved'
+        run: terraform apply -auto-approve tfplan-deployments
+        working-directory: ${{ env.DEPLOYMENTS_DIR }}
