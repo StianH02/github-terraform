@@ -35,25 +35,14 @@ jobs:
       # Define the correct tfvars file based on the branch
       - name: Set tfvars file
         run: |
-          if [ "${{ github.ref }}" == "refs/heads/Development" ]; then
+          branch_name="${{ github.head_ref != '' && github.head_ref || github.ref#refs/heads/ }}"
+          if [ "$branch_name" == "Development" ]; then
             echo "TFVARS_FILE=terraform.tfvars.dev" >> $GITHUB_ENV
-          elif [ "${{ github.ref }}" == "refs/heads/Staging" ]; then
+          elif [ "$branch_name" == "Staging" ]; then
             echo "TFVARS_FILE=terraform.tfvars.staging" >> $GITHUB_ENV
-          elif [ "${{ github.ref }}" == "refs/heads/Production" ]; then
+          elif [ "$branch_name" == "Production" ]; then
             echo "TFVARS_FILE=terraform.tfvars.prod" >> $GITHUB_ENV
           fi
-      
-      - name: Debug TFVARS_FILE
-        run: echo "TFVARS_FILE is set to ${{ env.TFVARS_FILE }}"
-
-      - name: Debug Branch Name
-        run: echo "Current branch ${{ github.ref }}"
-
-
-      - name: Debug Branch Name (head_ref for PRs)
-        run: echo "Current branch ${{ github.head_ref }}"
-
-
 
       # Initialize Terraform in the Global directory
       - name: Terraform init - Global
