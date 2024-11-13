@@ -39,8 +39,8 @@ jobs:
       - name: Set directory paths
         run: |
           echo "WORKING_DIR=./" >> $GITHUB_ENV
-          echo "GLOBAL=./global" >> $GITHUB_ENV
-          echo "DEPLOYMENT=./deployments" >> $GITHUB_ENV
+          echo "GLOBAL=./azure-terraform-project/global" >> $GITHUB_ENV
+          echo "DEPLOYMENT=./azure-terraform-project/deployments" >> $GITHUB_ENV
 
       # Run Terraform commands for each directory
       - name: Terraform init, fmt, validate, tflint for WORKING_DIR
