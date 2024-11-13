@@ -22,8 +22,4 @@ resource "azurerm_mssql_database" "sql_database" {
   enclave_type = var.enclave_type
 
   tags = var.tags
-
-  lifecycle {
-    prevent_destroy = true
-  }
 }
