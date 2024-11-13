@@ -35,12 +35,11 @@ jobs:
       # Define the correct tfvars file based on the branch
       - name: Set tfvars file
         run: |
-          branch_name="${{ github.head_ref != '' && github.head_ref || github.ref#refs/heads/ }}"
-          if [ "$branch_name" == "Development" ]; then
+          if [ "${{ github.head_ref }}" == "Development" ]; then
             echo "TFVARS_FILE=terraform.tfvars.dev" >> $GITHUB_ENV
-          elif [ "$branch_name" == "Staging" ]; then
+          elif [ "${{ github.head_ref }}" == "Staging" ]; then
             echo "TFVARS_FILE=terraform.tfvars.staging" >> $GITHUB_ENV
-          elif [ "$branch_name" == "Production" ]; then
+          elif [ "${{ github.head_ref }}" == "Production" ]; then
             echo "TFVARS_FILE=terraform.tfvars.prod" >> $GITHUB_ENV
           fi
 
