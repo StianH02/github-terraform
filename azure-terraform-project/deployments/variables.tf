@@ -87,7 +87,7 @@ variable "license_type" {
 
 variable "max_size_gb" {
   description = "Maximum size of the SQL Database in GB."
-  type        = number
+  type        = number 
   default     = 2
 }
 
