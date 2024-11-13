@@ -36,11 +36,11 @@ jobs:
       - name: Set tfvars file
         run: |
           if [ "${{ github.head_ref }}" == "Development" ]; then
-            echo "TFVARS_FILE=terraform.tfvars.dev" >> $GITHUB_ENV
+            echo "TFVARS_FILE=./azure-terraform-project/deployments/terraform.tfvars.dev" >> $GITHUB_ENV
           elif [ "${{ github.head_ref }}" == "Staging" ]; then
-            echo "TFVARS_FILE=terraform.tfvars.staging" >> $GITHUB_ENV
+            echo "TFVARS_FILE=./azure-terraform-project/deployments/terraform.tfvars.staging" >> $GITHUB_ENV
           elif [ "${{ github.head_ref }}" == "Production" ]; then
-            echo "TFVARS_FILE=terraform.tfvars.prod" >> $GITHUB_ENV
+            echo "TFVARS_FILE=./azure-terraform-project/deployments/terraform.tfvars.prod" >> $GITHUB_ENV
           fi
 
       # Initialize Terraform in the Global directory
