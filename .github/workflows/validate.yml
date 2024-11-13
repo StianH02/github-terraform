@@ -7,9 +7,9 @@ on:
   # Triggers the workflow on push or pull request events
   push:
     branches:
-      - 'Development'
-      - 'Staging'
-      - 'Production'
+      - 'development'
+      - 'staging'
+      - 'production'
     paths:
       - '**'
     
