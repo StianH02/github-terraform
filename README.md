@@ -1,21 +1,29 @@
-# Infrastructure as Code (IaC) for an IT Consultant Firm
+# Infrastructure as Code (IaC)
 
-## Modules
+## Project Structure
 
-- **Network Module**
-  The Network Module creates a networking infrastructure. It creates a Virtual Network (VNet) with a Subnet and a Network Security Group (NSG), that protects the Virtual machine (VM) from threats in in- and outbound traffic. It communicatex with the VM using a Network Interface (NIC) that is connected to the subnet. The network interface is passed to the VM module, using outputs, for integration.
-- **Storage Account Module**
-  The Storage Acount Module creates a Storage Account with a storage container within it. The storage access key is passed to the Key Vault, for secure storage. The Storage Account provides scalable, durable storage, while the container organizes data within the account.
-- **Virtual Machine Module**
-  Makes an Linux Virtual Machine (VM). The VM has a specific size and the networking information is passed from the Network module. The username and password for the VM are retrieved from Key Vault. The VM also has an OS disk configuration, and password authentication is enabled, so that it only need the password from Key Vault.
-- **Key Vault Module**
-  Creates a Key Vault to securely store sensitive information, including the VM username, password, and Storage Account access key. The Key Vault is configured with access policies that control the permissions for managing keys, secrets, and storage. The VM credentials are stored as secrets, with the username and a hardcoded password used for testing purposes. These credentials and the Storage Account access key are passed to, and used by, the VM and Storage modules.
+This project is organized into distinct folders for deployments, global configuration, reusable modules, and CI/CD workflows.
+
+## Folder Structure
+
+- .github/workflows: Contains GitHub Actions workflows for CI/CD, including deploy.yml for environment deployments and validate.yml for pull request validation.
+- azure-terraform-project:
+  - deployments: Has environment-specific configurations for dev, staging, and prod with separate terraform.tfvars files. This contains three deployment files (main.tf, outputs.tf, variables.tf) that are structured to be reusable across environments.
+  - global: Defines shared configurations across all environments. I have put a random offset string that is used to make unique names here.
+  - modules:
+    - app_service: The App Service Module sets up the web hosting infrastructure by creating a Resource Group, an App Service Plan, and a Linux Web App. The App Service Plan name combines a base (app_service_plan_name) with a unique suffix (global_suffix) and is configured with a specified SKU for scaling. The Linux Web App name follows the same naming convention (app_service_name + global_suffix) and is associated with the App Service Plan.
+    - database: The Database Module sets up the database infrastructure by creating a Resource Group, an Azure SQL Server, and an SQL Database. The SQL Server name is composed of a base (sql_server_name) and a unique suffix (global_suffix). It is configured with a specific version and administrator credentials (username and password) from variables, which is set to sensitive. The SQL Database is created within this server.
+    - load_balancer: The Load Balancer Module sets up the load balancing infrastructure by creating a Resource Group, a Public IP, and an Azure Load Balancer. The Public IP name combines a base (public_ip_name) with a unique suffix (global_suffix) for uniqueness. The Load Balancer name is similarly constructed (load_balancer_name + global_suffix).
+    - networking: The Network Module sets up the networking infrastructure by creating a Resource Group, a Virtual Network (VNet), Subnets, and a Network Security Group (NSG).  The VNet name combines a base (vnet_name) with a unique suffix (global_suffix), to make sure its unique. Subnets are created dynamically based on the number of entries in var.subnets, each with a custom name and address prefix. The NSG also uses a unique name pattern (nsg_name + global_suffix).
+    - storage: The Storage Module sets up the necessary storage infrastructure. It an Azure Storage Account with a unique name, based on s base_name and s global_suffix. It also creates a Resource Group.
+  - pictures: Contains images or screenshots used in documentation (e.g., successful deployments or validation screenshots).
 
 ## Pre-requisites
   
 - Terraform 4.0.1 is installed.
 - Azure CLI is installed and you are authenticated.
-  
+- GitHub: For CI/CD configuration
+
 ## How to Use the Terraform Scripts
 
 1. **Initialize the Project**
@@ -30,24 +38,32 @@ terraform init
 Before applying changes, review the plan to see what Terraform will create or modify using the plan command:
 
 ``` bash
-terraform plan
+terraform plan -var-file="terraform.tfvars.<environment>
 ```
 
 3. **Apply the Configuration**
 Deploy the infrastructure using the apply command:
 
 ``` bash
-terraform apply
+terraform apply -var-file="terraform.tfvars.<environment>
 ```
 
 4. **Destroy the Resources**
 When the infrastructure is no longer needed, use the destroy command to clean up all resources:
 
 ``` bash
-terraform destroy
+terraform destroy -var-file="terraform.tfvars.<environment>
 ```
 
 ## Output screenshots
 
 ![Apply success](pictures/Apply_success.png "Apply success")
 ![Destroy success](pictures/Destroy_success.png "Destroy success")
+
+## CI/CD Pipeline and Workflows
+
+The CI/CD pipeline uses GitHub Actions to validate and deploy infrastructure changes. The pipeline ensures quality and consistency across environments through structured branching and reviews.
+
+validate.yml: Runs on push requests, excluding the Production branch. This workflow performs syntax formatting (terraform fmt), validation (terraform validate), and security hecks (tflint) across all directories, ensuring quality before code is merged.
+
+deploy.yml: Executes deployments on environment branches (Development, Staging, and Production). It sets the appropriate .tfvars file based on the branch, plans and applies changes, and enforces an approval step before applying changes to Production. Merging into Development or Staging branches automatically triggers deployment workflows, which execute terraform plan and terraform apply in their respective environments.
