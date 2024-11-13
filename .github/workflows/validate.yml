@@ -6,10 +6,8 @@ name: Validate Infrastructure
 on:
   # Triggers the workflow on push or pull request events
   push:
-    branches:
-      - 'development'
-      - 'staging'
-      - 'production'
+    branches-ignore:
+      - 'main'
     paths:
       - '**'
     
