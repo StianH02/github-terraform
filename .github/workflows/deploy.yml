@@ -46,6 +46,11 @@ jobs:
       - name: Debug TFVARS_FILE
         run: echo "TFVARS_FILE is set to ${{ env.TFVARS_FILE }}"
 
+      - name: Debug Branch Name
+        run: echo "Current branch: ${{ github.ref }}"
+
+
+
       # Initialize Terraform in the Global directory
       - name: Terraform init - Global
         run: terraform init
