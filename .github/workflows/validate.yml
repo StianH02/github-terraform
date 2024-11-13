@@ -26,7 +26,9 @@ jobs:
       ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
       ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-      WORKING_DIR: ./course materials/module07/demo-infra
+      WORKING_DIR: ./
+      GLOBAL: ./Deployment
+      DEPLOYMENT: ./Global
       
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -52,3 +54,43 @@ jobs:
       - name: TFLint
         run: tflint
         working-directory: ${{ env.WORKING_DIR }}
+
+            # Terraform initialization
+      - name: Terraform init
+        run: terraform init
+        working-directory: ${{ env.GLOBAL }}
+
+      # Run Terraform format check to ensure code is formatted
+      - name: Terraform fmt
+        run: terraform fmt -check
+        working-directory: ${{ env.GLOBAL }}
+
+      # Run Terraform validate to validate configuration
+      - name: Terraform validate
+        run: terraform validate
+        working-directory: ${{ env.GLOBAL }}
+
+      # Run tflint to catch any Terraform-specific issues
+      - name: TFLint
+        run: tflint
+        working-directory: ${{ env.GLOBAL }}  
+            
+      # Terraform initialization
+      - name: Terraform init
+        run: terraform init
+        working-directory: ${{ env.DEPLOYMENT }}
+
+      # Run Terraform format check to ensure code is formatted
+      - name: Terraform fmt
+        run: terraform fmt -check
+        working-directory: ${{ env.DEPLOYMENT }}
+
+      # Run Terraform validate to validate configuration
+      - name: Terraform validate
+        run: terraform validate
+        working-directory: ${{ env.DEPLOYMENT }}
+
+      # Run tflint to catch any Terraform-specific issues
+      - name: TFLint
+        run: tflint
+        working-directory: ${{ env.DEPLOYMENT }}  
